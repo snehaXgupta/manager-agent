@@ -604,5 +604,17 @@ class PerformanceTestingSeeder extends Seeder
         }
         DB::table('notifications')->insert($notifications);
         $notifications = [];
+
+        // Reset PostgreSQL Auto-Increment sequences after manual ID seeding
+        if (DB::getDriverName() === 'pgsql') {
+            $tables = ['users', 'departments', 'designations', 'skills', 'projects', 'teams', 'tasks', 'attendance_logs', 'time_entries', 'risk_alerts', 'notifications'];
+            foreach ($tables as $table) {
+                $maxId = DB::table($table)->max('id');
+                if ($maxId) {
+                    $seqName = "{$table}_id_seq";
+                    DB::statement("SELECT setval(?, ?, true)", [$seqName, $maxId]);
+                }
+            }
+        }
     }
 }
