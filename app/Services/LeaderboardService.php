@@ -342,10 +342,10 @@ class LeaderboardService
         // 1. Bulk fetch task stats
         $tasksData = Task::whereIn('assigned_to', $employeeIds)
             ->where('created_at', '<=', $endDate)
-            ->selectRaw('assigned_to, 
+            ->selectRaw("assigned_to, 
                 COUNT(*) as total_count,
-                SUM(CASE WHEN status = "completed" AND updated_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as completed_count,
-                SUM(CASE WHEN status = "completed" AND updated_at BETWEEN ? AND ? AND (deadline IS NULL OR updated_at <= deadline) THEN 1 ELSE 0 END) as completed_on_time_count', 
+                SUM(CASE WHEN status = 'completed' AND updated_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as completed_count,
+                SUM(CASE WHEN status = 'completed' AND updated_at BETWEEN ? AND ? AND (deadline IS NULL OR updated_at <= deadline) THEN 1 ELSE 0 END) as completed_on_time_count", 
                 [$startDate->toDateTimeString(), $endDate->toDateTimeString(), $startDate->toDateTimeString(), $endDate->toDateTimeString()]
             )
             ->groupBy('assigned_to')
@@ -791,9 +791,9 @@ class LeaderboardService
 
         // 5. Top Contributors (Commits + Reviews)
         $contributorStats = DeveloperActivity::whereBetween('occurred_at', [$startDate, $endDate])
-            ->selectRaw('user_id, 
-                SUM(case when event_type = "commit" then 1 else 0 end) as commits_count,
-                SUM(case when event_type = "review_submitted" then 1 else 0 end) as reviews_count')
+            ->selectRaw("user_id, 
+                SUM(case when event_type = 'commit' then 1 else 0 end) as commits_count,
+                SUM(case when event_type = 'review_submitted' then 1 else 0 end) as reviews_count")
             ->groupBy('user_id')
             ->get()
             ->keyBy('user_id');

@@ -21,12 +21,11 @@ class WorkloadAnalysisService
         $employees = $perPage ? $employeesQuery->paginate($perPage) : $employeesQuery->get();
         $employeeIds = $employees->pluck('id');
 
-        // Fetch task counts in bulk grouped by assigned employee
         $taskStats = Task::whereIn('assigned_to', $employeeIds)
-            ->selectRaw('assigned_to, 
-                SUM(case when status in ("pending", "in_progress") then 1 else 0 end) as active_count,
-                SUM(case when status = "completed" then 1 else 0 end) as completed_count,
-                COUNT(*) as total_count')
+            ->selectRaw("assigned_to, 
+                SUM(case when status in ('pending', 'in_progress') then 1 else 0 end) as active_count,
+                SUM(case when status = 'completed' then 1 else 0 end) as completed_count,
+                COUNT(*) as total_count")
             ->groupBy('assigned_to')
             ->get()
             ->keyBy('assigned_to');
