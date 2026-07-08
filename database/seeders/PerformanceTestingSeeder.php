@@ -607,12 +607,16 @@ class PerformanceTestingSeeder extends Seeder
 
         // Reset PostgreSQL Auto-Increment sequences after manual ID seeding
         if (DB::getDriverName() === 'pgsql') {
-            $tables = ['users', 'departments', 'designations', 'skills', 'projects', 'teams', 'tasks', 'attendance_logs', 'time_entries', 'risk_alerts', 'notifications'];
+            $tables = [
+                'users', 'departments', 'designations', 'skills', 'employee_skill',
+                'projects', 'project_members', 'teams', 'team_user', 'tasks',
+                'attendance_logs', 'time_entries', 'developer_activities',
+                'performance_reports', 'risk_alerts', 'notifications'
+            ];
             foreach ($tables as $table) {
                 $maxId = DB::table($table)->max('id');
                 if ($maxId) {
-                    $seqName = "{$table}_id_seq";
-                    DB::statement("SELECT setval(?, ?, true)", [$seqName, $maxId]);
+                    DB::statement("SELECT setval(pg_get_serial_sequence(?, 'id'), ?, true)", [$table, $maxId]);
                 }
             }
         }
