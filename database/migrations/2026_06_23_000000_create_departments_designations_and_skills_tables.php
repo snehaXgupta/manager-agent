@@ -49,6 +49,9 @@ return new class extends Migration
         // Modify enum options for MySQL driver (where enum is strict)
         if (DB::getDriverName() === 'mysql') {
             DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee', 'team_lead', 'manager', 'admin') NOT NULL DEFAULT 'employee'");
+        } elseif (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role::text IN ('employee'::text, 'team_lead'::text, 'manager'::text, 'admin'::text))");
         }
     }
 
@@ -65,6 +68,9 @@ return new class extends Migration
 
         if (DB::getDriverName() === 'mysql') {
             DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('employee', 'manager', 'admin') NOT NULL DEFAULT 'employee'");
+        } elseif (DB::getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            DB::statement("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role::text IN ('employee'::text, 'manager'::text, 'admin'::text))");
         }
 
         Schema::dropIfExists('employee_skill');
